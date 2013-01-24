@@ -1,0 +1,40 @@
+--- gcc-4.7.2/libstdc++-v3/src/Makefile.in.old	2012-12-15 10:04:26.731010900 +0800
++++ gcc-4.7.2/libstdc++-v3/src/Makefile.in	2012-12-15 10:05:10.909553200 +0800
+@@ -447,11 +447,13 @@
+ # course is problematic at this point.  So, we get the top-level
+ # directory to configure libstdc++-v3 to use gcc as the C++
+ # compilation driver.
++MAYBE64 = $(if $(findstring x86_64,$(host_triplet)),$(if $(MULTISUBDIR),,_64),$(if $(findstring /64,$(MULTISUBDIR)),_64))
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ CXXLINK = \
+ 	$(LIBTOOL) --tag CXX \
+ 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+ 	--mode=link $(CXX) \
+-	$(OPT_LDFLAGS) $(SECTION_LDFLAGS) $(AM_CXXFLAGS) $(LTLDFLAGS) -o $@
++	$(OPT_LDFLAGS) $(SECTION_LDFLAGS) $(AM_CXXFLAGS) $(LTLDFLAGS) -o $(TARGET_MAYBE64)
+ 
+ @ENABLE_SYMVERS_TRUE@CLEANFILES = libstdc++-symbols.ver $(version_dep)
+ @ENABLE_SYMVERS_DARWIN_TRUE@@ENABLE_SYMVERS_TRUE@version_arg = -Wl,-exported_symbols_list,libstdc++-symbols.explist
+@@ -546,10 +548,18 @@
+ libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(libstdc___la_DEPENDENCIES_STATIC) $(libstdc___la_DEPENDENCIES_SHARED)
+ 	$(LIBTOOL) --tag CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+ 	  $(CXX) $(OPT_LDFLAGS) $(SECTION_LDFLAGS) -static $(AM_CXXFLAGS) $(LTLDFLAGS) -o $@ \
+-	  $(libstdc___la_LDFLAGS) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_STATIC) $(LIBS)
+-	cp .libs/libstdc++.a libstdc++_noshared.a
+-	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_SHARED) $(LIBS)
+-	cp libstdc++_noshared.a .libs/libstdc++.a
++	  $(libstdc___la_LDFLAGS) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_STATIC) $(LIBS) \
++	&& cp .libs/libstdc++.a libstdc++_noshared.a \
++	&& $(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_SHARED) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
++	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)" \
++	&& cp libstdc++_noshared.a .libs/libstdc++.a
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)

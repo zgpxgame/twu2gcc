@@ -1,0 +1,33 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libquadmath/Makefile.in gcc-4.7.2/libquadmath/Makefile.in
+--- gcc-4.7.2.orig/libquadmath/Makefile.in	2011-09-21 22:36:03.000000000 +0800
++++ gcc-4.7.2/libquadmath/Makefile.in	2012-12-10 22:36:00.934241600 +0800
+@@ -139,9 +139,11 @@
+ @BUILD_LIBQUADMATH_TRUE@	strtod/mpn2flt128.lo \
+ @BUILD_LIBQUADMATH_TRUE@	strtod/tens_in_limb.lo
+ libquadmath_la_OBJECTS = $(am_libquadmath_la_OBJECTS)
++MAYBE64 = $(if $(findstring x86_64,$(host_triplet)),$(if $(MULTISUBDIR),,_64),$(if $(findstring /64,$(MULTISUBDIR)),_64))
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libquadmath_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(libquadmath_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(libquadmath_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ @BUILD_LIBQUADMATH_TRUE@am_libquadmath_la_rpath = -rpath \
+ @BUILD_LIBQUADMATH_TRUE@	$(toolexeclibdir)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+@@ -637,7 +639,15 @@
+ strtod/tens_in_limb.lo: strtod/$(am__dirstamp) \
+ 	strtod/$(DEPDIR)/$(am__dirstamp)
+ libquadmath.la: $(libquadmath_la_OBJECTS) $(libquadmath_la_DEPENDENCIES) 
+-	$(libquadmath_la_LINK) $(am_libquadmath_la_rpath) $(libquadmath_la_OBJECTS) $(libquadmath_la_LIBADD) $(LIBS)
++	$(libquadmath_la_LINK) $(am_libquadmath_la_rpath) $(libquadmath_la_OBJECTS) $(libquadmath_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
++	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)

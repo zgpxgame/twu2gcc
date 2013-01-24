@@ -1,0 +1,86 @@
+--- gcc-4.7.2/gcc/ada/gcc-interface/Makefile.in.orig	2012-12-12 13:45:38.252118800 +0800
++++ gcc-4.7.2/gcc/ada/gcc-interface/Makefile.in	2012-12-12 13:50:24.078467100 +0800
+@@ -2463,16 +2463,16 @@
+ #     Also install the .dSYM directories if they exist (these directories
+ #     contain the debug information for the shared libraries on darwin)
+ 	for file in gnat gnarl; do \
+-	   if [ -f $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) ]; then \
+-	      $(INSTALL) $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) \
++	   if [ -f $(ORIG_RTSDIR)/lib$${file}$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) ]; then \
++	      $(INSTALL) $(ORIG_RTSDIR)/lib$${file}$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 			 $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	   fi; \
+ 	   if [ -f $(ORIG_RTSDIR)/lib$${file}$(soext) ]; then \
+-	      $(LN_S) lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) \
++	      $(LN_S) lib$${file}$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 	      $(DESTDIR)$(ADA_RTL_OBJ_DIR)/lib$${file}$(soext); \
+ 	   fi; \
+-	   if [ -d $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM ]; then \
+-	      $(CP) -r $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM \
++	   if [ -d $(ORIG_RTSDIR)/lib$${file}$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM ]; then \
++	      $(CP) -r $(ORIG_RTSDIR)/lib$${file}$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM \
+ 	        $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	   fi; \
+ 	done
+@@ -2569,6 +2569,12 @@
+ # Example: cd $(RTSDIR); ar rc libfoo.a $(LONG_LIST_OF_OBJS)
+ # is guaranteed to overflow the buffer.
+ 
++MAYBE64=
++ifneq ($(strip $(MULTISUBDIR)),/32)
++  MAYBE64=_64
++endif
++
++
+ gnatlib: ../stamp-gnatlib1-$(RTSDIR) ../stamp-gnatlib2-$(RTSDIR) $(RTSDIR)/s-oscons.ads
+ 	$(MAKE) -C $(RTSDIR) \
+ 		CC="`echo \"$(GCC_FOR_TARGET)\" \
+@@ -2616,20 +2622,20 @@
+ 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
+                 | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared $(GNATLIBCFLAGS) \
+ 		$(PICFLAG_FOR_TARGET) \
+-		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		-o libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
+-		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		$(SO_OPTS)libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(MISCLIB) -lm
+ 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
+                 | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared $(GNATLIBCFLAGS) \
+ 		$(PICFLAG_FOR_TARGET) \
+-		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		-o libgnarl$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(GNATRTL_TASKING_OBJS) \
+-		$(SO_OPTS)libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		$(SO_OPTS)libgnarl$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(THREADSLIB)
+-	cd $(RTSDIR); $(LN_S) libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
++	cd $(RTSDIR); $(LN_S) libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		libgnat$(soext)
+-	cd $(RTSDIR); $(LN_S) libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
++	cd $(RTSDIR); $(LN_S) libgnarl$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		libgnarl$(soext)
+ 
+ gnatlib-shared-dual:
+@@ -2687,16 +2693,16 @@
+ 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
+                 | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -shared-libgcc \
+ 		$(PICFLAG_FOR_TARGET) \
+-		-o libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		-o libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(GNATRTL_NONTASKING_OBJS) $(LIBGNAT_OBJS) \
+-		$(SO_OPTS)libgnat$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
++		$(SO_OPTS)libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) $(MISCLIB)
+ 	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
+                 | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -shared-libgcc \
+ 		$(PICFLAG_FOR_TARGET) \
+-		-o libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		-o libgnarl$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 		$(GNATRTL_TASKING_OBJS) \
+-		$(SO_OPTS)libgnarl$(hyphen)$(LIBRARY_VERSION)$(soext) \
+-		$(THREADSLIB) -Wl,libgnat$(hyphen)$(LIBRARY_VERSION)$(soext)
++		$(SO_OPTS)libgnarl$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext) \
++		$(THREADSLIB) -Wl,libgnat$(MAYBE64)$(hyphen)$(LIBRARY_VERSION)$(soext)
+ 
+ gnatlib-shared-darwin:
+ 	$(MAKE) $(FLAGS_TO_PASS) \

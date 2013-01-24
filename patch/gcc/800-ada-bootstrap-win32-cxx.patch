@@ -1,0 +1,21 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/ada/tracebak.c gcc-4.7.2/gcc/ada/tracebak.c
+--- gcc-4.7.2.orig/gcc/ada/tracebak.c	2011-10-24 18:31:29.000000000 +0800
++++ gcc-4.7.2/gcc/ada/tracebak.c	2012-12-10 21:52:52.007799600 +0800
+@@ -326,7 +326,7 @@
+ 
+ #if defined (__WIN32)
+ #include <windows.h>
+-#define IS_BAD_PTR(ptr) (IsBadCodePtr((void *)ptr))
++#define IS_BAD_PTR(ptr) (IsBadCodePtr((FARPROC)ptr))
+ #elif defined (sun)
+ #define IS_BAD_PTR(ptr) ((unsigned long)ptr == -1UL)
+ #else
+@@ -508,7 +508,7 @@
+   cnt = 0;
+   while (cnt < size)
+     {
+-      if (STOP_FRAME (current, top_stack) ||
++      if (STOP_FRAME (current, (FARPROC)top_stack) ||
+ 	  !VALID_STACK_FRAME(((char *) current->return_address) + PC_ADJUST))
+         break;
+ 

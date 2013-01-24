@@ -1,0 +1,49 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libstdc++-v3/config/io/basic_file_stdio.cc gcc-4.7.2/libstdc++-v3/config/io/basic_file_stdio.cc
+--- gcc-4.7.2.orig/libstdc++-v3/config/io/basic_file_stdio.cc	2011-01-31 06:39:36.000000000 +0800
++++ gcc-4.7.2/libstdc++-v3/config/io/basic_file_stdio.cc	2012-12-10 22:05:24.959861200 +0800
+@@ -235,7 +235,7 @@
+     const char* __c_mode = fopen_mode(__mode);
+     if (__c_mode && !this->is_open())
+       {
+-#ifdef _GLIBCXX_USE_LFS
++#if defined(_GLIBCXX_USE_LFS) || defined(__MINGW32__)
+ 	if ((_M_cfile = fopen64(__name, __c_mode)))
+ #else
+ 	if ((_M_cfile = fopen(__name, __c_mode)))
+@@ -319,7 +319,7 @@
+   streamoff
+   __basic_file<char>::seekoff(streamoff __off, ios_base::seekdir __way) throw ()
+   {
+-#ifdef _GLIBCXX_USE_LFS
++#if defined(_GLIBCXX_USE_LFS) || defined(__MINGW32__)
+     return lseek64(this->fd(), __off, __way);
+ #else
+     if (__off > numeric_limits<off_t>::max()
+@@ -367,6 +367,15 @@
+     if (!__err && _GLIBCXX_ISREG(__buffer.st_mode))
+       {
+ 	const streamoff __off = __buffer.st_size - lseek64(this->fd(), 0,
++							   ios_base::cur);
++	return std::min(__off, streamoff(numeric_limits<streamsize>::max()));
++      }
++#elif defined(__MINGW32__)
++    struct _stati64 __buffer;
++    const int __err = _fstati64(this->fd(), &__buffer);
++    if (!__err && _GLIBCXX_ISREG(__buffer.st_mode))
++      {
++	const streamoff __off = __buffer.st_size - lseek64(this->fd(), 0,
+ 							   ios_base::cur);
+ 	return std::min(__off, streamoff(numeric_limits<streamsize>::max()));
+       }
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libstdc++-v3/include/ext/stdio_sync_filebuf.h gcc-4.7.2/libstdc++-v3/include/ext/stdio_sync_filebuf.h
+--- gcc-4.7.2.orig/libstdc++-v3/include/ext/stdio_sync_filebuf.h	2011-01-31 06:39:36.000000000 +0800
++++ gcc-4.7.2/libstdc++-v3/include/ext/stdio_sync_filebuf.h	2012-12-10 22:05:24.979850800 +0800
+@@ -173,7 +173,7 @@
+ 	  __whence = SEEK_CUR;
+ 	else
+ 	  __whence = SEEK_END;
+-#ifdef _GLIBCXX_USE_LFS
++#if defined(_GLIBCXX_USE_LFS) || defined(__MINGW32__)
+ 	if (!fseeko64(_M_file, __off, __whence))
+ 	  __ret = std::streampos(ftello64(_M_file));
+ #else

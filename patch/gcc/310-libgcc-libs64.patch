@@ -1,0 +1,77 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/config/i386/mingw32.h gcc-4.7.2/gcc/config/i386/mingw32.h
+--- gcc-4.7.2.orig/gcc/config/i386/mingw32.h	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/gcc/config/i386/mingw32.h	2012-12-10 22:36:00.807207200 +0800
+@@ -234,7 +234,12 @@
+ #else
+ #define LIBGCC_EH_EXTN "_sjlj"
+ #endif
+-#define LIBGCC_SONAME "libgcc_s" LIBGCC_EH_EXTN "-1.dll"
++#if __x86_64
++#define LIBGCC_64_EXTN "_64"
++#else
++#define LIBGCC_64_EXTN
++#endif
++#define LIBGCC_SONAME "libgcc_s" LIBGCC_EH_EXTN LIBGCC_64_EXTN "-1.dll"
+ 
+ /* We should find a way to not have to update this manually.  */
+ #define LIBGCJ_SONAME "libgcj" /*LIBGCC_EH_EXTN*/ "-13.dll"
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgcc/Makefile.in gcc-4.7.2/libgcc/Makefile.in
+--- gcc-4.7.2.orig/libgcc/Makefile.in	2012-09-05 20:19:47.000000000 +0800
++++ gcc-4.7.2/libgcc/Makefile.in	2012-12-10 22:36:00.828214300 +0800
+@@ -77,6 +77,8 @@
+ 
+ PWD_COMMAND = $${PWDCMD-pwd}
+ 
++SHLIB_MAYBE64 = $(if $(findstring $(if $(findstring x86_64,$(host_noncanonical)),.,64),$(MULTIDIR)),_64)
++
+ # Flags to pass to a recursive make.
+ FLAGS_TO_PASS = \
+ 	"AR=$(AR)" \
+@@ -908,7 +910,7 @@
+ 	    | sed -e '/^[ 	]*#/d' \
+ 		  -e 's/^%\(if\|else\|elif\|endif\|define\)/#\1/' \
+ 	    | $(gcc_compile_bare) -E -xassembler-with-cpp -; \
+-	} | $(AWK) -f $(SHLIB_MKMAP) $(SHLIB_MKMAP_OPTS) > tmp-$@
++	} | $(AWK) -f $(SHLIB_MKMAP) $(subst @shlib_maybe64@,$(SHLIB_MAYBE64),$(SHLIB_MKMAP_OPTS)) > tmp-$@
+ 	mv tmp-$@ $@
+ libgcc_s$(SHLIB_EXT): libgcc.map
+ mapfile = libgcc.map
+@@ -930,7 +932,8 @@
+ 		@shlib_base_name@,libgcc_s,$(subst \
+ 		@shlib_map_file@,$(mapfile),$(subst \
+ 		@shlib_slibdir_qual@,$(MULTIOSSUBDIR),$(subst \
+-		@shlib_slibdir@,$(shlib_slibdir),$(SHLIB_LINK))))))))
++		@shlib_maybe64@,$(SHLIB_MAYBE64),$(subst \
++		@shlib_slibdir@,$(shlib_slibdir),$(SHLIB_LINK)))))))))
+ 
+ libunwind$(SHLIB_EXT): $(libunwind-s-objects) $(extra-parts)
+ 	# @multilib_flags@ is still needed because this may use
+@@ -1061,7 +1064,8 @@
+ 
+ 	$(subst @multilib_dir@,$(MULTIDIR),$(subst \
+ 		@shlib_base_name@,libgcc_s,$(subst \
+-		@shlib_slibdir_qual@,$(MULTIOSSUBDIR),$(SHLIB_INSTALL))))
++		@shlib_maybe64@,$(SHLIB_MAYBE64),$(subst \
++		@shlib_slibdir_qual@,$(MULTIOSSUBDIR),$(SHLIB_INSTALL)))))
+ 
+ install-leaf: $(install-shared) $(install-libunwind)
+ 	$(mkinstalldirs) $(DESTDIR)$(inst_libdir)
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgcc/config/i386/t-slibgcc-cygming gcc-4.7.2/libgcc/config/i386/t-slibgcc-cygming
+--- gcc-4.7.2.orig/libgcc/config/i386/t-slibgcc-cygming	2011-11-02 18:49:46.000000000 +0800
++++ gcc-4.7.2/libgcc/config/i386/t-slibgcc-cygming	2012-12-10 22:36:00.844226900 +0800
+@@ -10,7 +10,7 @@
+ SHLIB_EXT = .dll
+ SHLIB_IMPLIB = @shlib_base_name@.a
+ SHLIB_SOVERSION = 1
+-SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
++SHLIB_SONAME = @shlib_base_name@_$(EH_MODEL)@shlib_maybe64@-$(SHLIB_SOVERSION)$(SHLIB_EXT)
+ SHLIB_MAP = @shlib_map_file@
+ SHLIB_OBJS = @shlib_objs@
+ SHLIB_DIR = @multilib_dir@/shlib
+@@ -54,5 +54,5 @@
+ SHLIB_MKMAP = $(srcdir)/mkmap-flat.awk
+ # We'd like to use SHLIB_SONAME here too, but shlib_base_name
+ # does not get substituted before mkmap-flat.awk is run.
+-SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
++SHLIB_MKMAP_OPTS = -v pe_dll=libgcc_s_$(EH_MODEL)@shlib_maybe64@-$(SHLIB_SOVERSION)$(SHLIB_EXT)
+ SHLIB_MAPFILES = libgcc-std.ver

@@ -1,0 +1,66 @@
+diff --strip-trailing-cr -Nur ppl-1.0.orig/interfaces/C/Makefile.in ppl-1.0/interfaces/C/Makefile.in
+--- ppl-1.0.orig/interfaces/C/Makefile.in	2012-06-28 18:50:40.000000000 +0800
++++ ppl-1.0/interfaces/C/Makefile.in	2012-12-11 21:06:12.366168300 +0800
+@@ -131,7 +131,7 @@
+ am__v_lt_0 = --silent
+ libppl_c_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+-	$(CXXFLAGS) $(libppl_c_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(CXXFLAGS) $(libppl_c_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+@@ -664,8 +664,19 @@
+ 	  echo "rm -f \"$${dir}/so_locations\""; \
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
++MAYBE64=
++ifeq ($(findstring -m32,$(CFLAGS)),)
++  MAYBE64=_64
++endif
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libppl_c.la: $(libppl_c_la_OBJECTS) $(libppl_c_la_DEPENDENCIES) $(EXTRA_libppl_c_la_DEPENDENCIES) 
+-	$(AM_V_CXXLD)$(libppl_c_la_LINK) -rpath $(libdir) $(libppl_c_la_OBJECTS) $(libppl_c_la_LIBADD) $(LIBS)
++	$(AM_V_CXXLD)$(libppl_c_la_LINK) -rpath $(libdir) $(libppl_c_la_OBJECTS) $(libppl_c_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp_pplc \
++	&& mv -f tmp_pplc "$(patsubst %.la,%.dll.a,.libs/$@)"
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
+diff --strip-trailing-cr -Nur ppl-1.0.orig/src/Makefile.in ppl-1.0/src/Makefile.in
+--- ppl-1.0.orig/src/Makefile.in	2012-06-28 18:50:41.000000000 +0800
++++ ppl-1.0/src/Makefile.in	2012-12-11 21:05:08.426180300 +0800
+@@ -382,7 +382,7 @@
+ am__v_lt_0 = --silent
+ libppl_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+-	$(CXXFLAGS) $(libppl_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(CXXFLAGS) $(libppl_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ PROGRAMS = $(bin_PROGRAMS)
+ am_ppl_config_OBJECTS = BUGS.$(OBJEXT) COPYING.$(OBJEXT) \
+ 	CREDITS.$(OBJEXT)
+@@ -1194,8 +1194,19 @@
+ 	  echo "rm -f \"$${dir}/so_locations\""; \
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
++MAYBE64=
++ifeq ($(findstring -m32,$(CFLAGS)),)
++  MAYBE64=_64
++endif
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libppl.la: $(libppl_la_OBJECTS) $(libppl_la_DEPENDENCIES) $(EXTRA_libppl_la_DEPENDENCIES) 
+-	$(AM_V_CXXLD)$(libppl_la_LINK) -rpath $(libdir) $(libppl_la_OBJECTS) $(libppl_la_LIBADD) $(LIBS)
++	$(AM_V_CXXLD)$(libppl_la_LINK) -rpath $(libdir) $(libppl_la_OBJECTS) $(libppl_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp_ppl \
++	&& mv -f tmp_ppl "$(patsubst %.la,%.dll.a,.libs/$@)"
+ install-binPROGRAMS: $(bin_PROGRAMS)
+ 	@$(NORMAL_INSTALL)
+ 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"

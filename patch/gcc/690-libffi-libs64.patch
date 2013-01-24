@@ -1,0 +1,33 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/Makefile.in gcc-4.7.2/libffi/Makefile.in
+--- gcc-4.7.2.orig/libffi/Makefile.in	2012-09-20 15:23:55.000000000 +0800
++++ gcc-4.7.2/libffi/Makefile.in	2012-12-10 22:33:56.919744000 +0800
+@@ -161,9 +161,11 @@
+ 	$(am__objects_24) $(am__objects_25)
+ libffi_la_OBJECTS = $(am_libffi_la_OBJECTS) \
+ 	$(nodist_libffi_la_OBJECTS)
++MAYBE64 = $(if $(findstring x86_64,$(host_triplet)),$(if $(MULTISUBDIR),,_64),$(if $(findstring /64,$(MULTISUBDIR)),_64))
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libffi_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(libffi_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(libffi_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ libffi_convenience_la_LIBADD =
+ am__objects_26 = src/debug.lo src/prep_cif.lo src/types.lo \
+ 	src/raw_api.lo src/java_raw_api.lo src/closures.lo
+@@ -783,7 +785,15 @@
+ src/pa/hpux32.lo: src/pa/$(am__dirstamp) \
+ 	src/pa/$(DEPDIR)/$(am__dirstamp)
+ libffi.la: $(libffi_la_OBJECTS) $(libffi_la_DEPENDENCIES) 
+-	$(libffi_la_LINK) -rpath $(toolexeclibdir) $(libffi_la_OBJECTS) $(libffi_la_LIBADD) $(LIBS)
++	$(libffi_la_LINK) -rpath $(toolexeclibdir) $(libffi_la_OBJECTS) $(libffi_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
++	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
+ libffi_convenience.la: $(libffi_convenience_la_OBJECTS) $(libffi_convenience_la_DEPENDENCIES) 
+ 	$(LINK)  $(libffi_convenience_la_OBJECTS) $(libffi_convenience_la_LIBADD) $(LIBS)
+ 

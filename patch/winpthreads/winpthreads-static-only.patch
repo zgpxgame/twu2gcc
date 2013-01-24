@@ -1,0 +1,60 @@
+diff --strip-trailing-cr -Nur winpthreads.orig/include/pthread.h winpthreads/include/pthread.h
+--- winpthreads.orig/include/pthread.h	2012-11-03 21:36:29 +0800
++++ winpthreads/include/pthread.h	2012-11-06 22:50:57 +0800
+@@ -82,15 +82,8 @@
+ /* MSB 8-bit major version, 8-bit minor version, 16-bit patch level.  */
+ #define __WINPTHREADS_VERSION 0x00050000
+ 
+-#if defined DLL_EXPORT
+-#ifdef IN_WINPTHREAD
+-#define WINPTHREAD_API __declspec(dllexport)
+-#else
+-#define WINPTHREAD_API __declspec(dllimport)
+-#endif
+-#else
++/* only use static version */
+ #define WINPTHREAD_API
+-#endif
+ 
+ /* #define WINPTHREAD_DBG 1 */
+ 
+diff --strip-trailing-cr -Nur winpthreads.orig/include/sched.h winpthreads/include/sched.h
+--- winpthreads.orig/include/sched.h	2012-11-03 21:36:29 +0800
++++ winpthreads/include/sched.h	2012-11-06 22:51:27 +0800
+@@ -49,15 +49,8 @@
+ extern "C" {
+ #endif
+ 
+-#if defined DLL_EXPORT && !defined (WINPTHREAD_EXPORT_ALL_DEBUG)
+-#ifdef IN_WINPTHREAD
+-#define WINPTHREAD_SCHED_API __declspec(dllexport)
+-#else
+-#define WINPTHREAD_SCHED_API __declspec(dllimport)
+-#endif
+-#else
++/* only use static version */
+ #define WINPTHREAD_SCHED_API
+-#endif
+ 
+ int WINPTHREAD_SCHED_API sched_yield(void);
+ int WINPTHREAD_SCHED_API sched_get_priority_min(int pol);
+diff --strip-trailing-cr -Nur winpthreads.orig/include/semaphore.h winpthreads/include/semaphore.h
+--- winpthreads.orig/include/semaphore.h	2012-11-03 21:36:29 +0800
++++ winpthreads/include/semaphore.h	2012-11-06 22:51:11 +0800
+@@ -27,15 +27,8 @@
+ extern "C" {
+ #endif
+ 
+-#if defined DLL_EXPORT && !defined (WINPTHREAD_EXPORT_ALL_DEBUG)
+-#ifdef IN_WINPTHREAD
+-#define WINPTHREAD_SEMA_API __declspec(dllexport)
+-#else
+-#define WINPTHREAD_SEMA_API __declspec(dllimport)
+-#endif
+-#else
++/* only use static version */
+ #define WINPTHREAD_SEMA_API
+-#endif
+ 
+ /* Set this to 0 to disable it */
+ #define USE_SEM_CriticalSection_SpinCount	100

@@ -1,0 +1,99 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/configure gcc-4.7.2/configure
+--- gcc-4.7.2.orig/configure	2012-09-05 20:19:47.000000000 +0800
++++ gcc-4.7.2/configure	2012-12-10 22:12:40.439270500 +0800
+@@ -5566,7 +5566,7 @@
+  # statically.  But if the user explicitly specified the libraries to
+  # use, trust that they are doing what they want.
+  if test "$poststage1_libs" = ""; then
+-   poststage1_ldflags="-static-libstdc++ -static-libgcc"
++   poststage1_ldflags="-static-libgcc"
+  fi
+ fi
+ 
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/common.opt gcc-4.7.2/gcc/common.opt
+--- gcc-4.7.2.orig/gcc/common.opt	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/gcc/common.opt	2012-12-10 22:12:40.460253800 +0800
+@@ -2399,7 +2399,7 @@
+ Driver
+ ; Documented for Fortran, but always accepted by driver.
+ 
+-static-libstdc++
++shared-libstdc++
+ Driver
+ 
+ static-libgo
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/cp/g++spec.c gcc-4.7.2/gcc/cp/g++spec.c
+--- gcc-4.7.2.orig/gcc/cp/g++spec.c	2011-01-31 21:52:42.000000000 +0800
++++ gcc-4.7.2/gcc/cp/g++spec.c	2012-12-10 22:12:40.477273900 +0800
+@@ -64,8 +64,8 @@
+   /* What do with libstdc++:
+      -1 means we should not link in libstdc++
+      0  means we should link in libstdc++ if it is needed
+-     1  means libstdc++ is needed and should be linked in.
+-     2  means libstdc++ is needed and should be linked statically.  */
++     1  means libstdc++ is needed and should be linked in (statically).
++     2  means libstdc++ is needed and should be linked shared.  */
+   int library = 0;
+ 
+   /* The number of arguments being added to what's in argv, other than
+@@ -98,7 +98,7 @@
+   int static_link = 0;
+ 
+   /* True if we should add -shared-libgcc to the command-line.  */
+-  int shared_libgcc = 1;
++  int shared_libgcc = 0;
+ 
+   /* The total number of arguments with the new stuff.  */
+   unsigned int argc;
+@@ -187,7 +187,7 @@
+ 	  shared_libgcc = 0;
+ 	  break;
+ 
+-	case OPT_static_libstdc__:
++	case OPT_shared_libstdc__:
+ 	  library = library >= 0 ? 2 : library;
+ 	  args[i] |= SKIPOPT;
+ 	  break;
+@@ -314,7 +314,7 @@
+   if (library > 0)
+     {
+ #ifdef HAVE_LD_STATIC_DYNAMIC
+-      if (library > 1 && !static_link)
++      if (library == 1 && !static_link)
+ 	{
+ 	  generate_option (OPT_Wl_, LD_STATIC_OPTION, 1, CL_DRIVER,
+ 			   &new_decoded_options[j]);
+@@ -327,7 +327,7 @@
+       added_libraries++;
+       j++;
+       /* Add target-dependent static library, if necessary.  */
+-      if ((static_link || library > 1) && LIBSTDCXX_STATIC != NULL)
++      if ((static_link || library == 1) && LIBSTDCXX_STATIC != NULL)
+ 	{
+ 	  generate_option (OPT_l, LIBSTDCXX_STATIC, 1,
+ 			   CL_DRIVER, &new_decoded_options[j]);
+@@ -335,7 +335,7 @@
+ 	  j++;
+ 	}
+ #ifdef HAVE_LD_STATIC_DYNAMIC
+-      if (library > 1 && !static_link)
++      if (library == 1 && !static_link)
+ 	{
+ 	  generate_option (OPT_Wl_, LD_DYNAMIC_OPTION, 1, CL_DRIVER,
+ 			   &new_decoded_options[j]);
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/gcc.c gcc-4.7.2/gcc/gcc.c
+--- gcc-4.7.2.orig/gcc/gcc.c	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/gcc/gcc.c	2012-12-10 22:12:40.505313300 +0800
+@@ -3511,10 +3511,10 @@
+     case OPT_static_libgcc:
+     case OPT_shared_libgcc:
+     case OPT_static_libgfortran:
+-    case OPT_static_libstdc__:
++    case OPT_shared_libstdc__:
+       /* These are always valid, since gcc.c itself understands the
+ 	 first two, gfortranspec.c understands -static-libgfortran and
+-	 g++spec.c understands -static-libstdc++ */
++	 g++spec.c understands -shared-libstdc++ */
+       validated = true;
+       break;
+ 

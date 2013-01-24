@@ -1,0 +1,10 @@
+--- mingw-w64-svn/mingw-w64-crt/math/cephes_mconf.h.orig	2012-11-22 20:06:34.208943200 +0800
++++ mingw-w64-svn/mingw-w64-crt/math/cephes_mconf.h	2012-11-22 20:07:04.243737300 +0800
+@@ -1,6 +1,7 @@
+ #include <math.h>
+ #include <errno.h>
+ 
++extern int signgam;
+ 
+ #define IBMPC 1
+ #define ANSIPROT 1

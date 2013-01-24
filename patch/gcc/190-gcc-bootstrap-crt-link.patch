@@ -1,0 +1,25 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/Makefile.in gcc-4.7.2/gcc/Makefile.in
+--- gcc-4.7.2.orig/gcc/Makefile.in	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/gcc/Makefile.in	2012-12-10 22:21:51.535124100 +0800
+@@ -1728,6 +1728,13 @@
+ native: gengtype$(exeext)
+ endif
+ 
++stage_current_data:= $(shell cat $(toplevel_builddir)/stage_current)
++ifeq ($(stage_current_data),stage1)
++  cp_crt_cmd:=true
++else
++  cp_crt_cmd:=cp -f $(toplevel_builddir)/crt32/crt2.o $(toplevel_builddir)/prev-gcc/32/crt2.o; cp -f $(toplevel_builddir)/crt32/crtbegin.o $(toplevel_builddir)/prev-gcc/32/crtbegin.o; cp -f $(toplevel_builddir)/crt32/crtend.o $(toplevel_builddir)/prev-gcc/32/crtend.o; cp -f $(toplevel_builddir)/crt/crt2.o $(toplevel_builddir)/prev-gcc/crt2.o; cp -f $(toplevel_builddir)/crt/crtbegin.o $(toplevel_builddir)/prev-gcc/crtbegin.o; cp -f $(toplevel_builddir)/crt/crtend.o $(toplevel_builddir)/prev-gcc/crtend.o
++endif
++
+ # Define the names for selecting languages in LANGUAGES.
+ c: cc1$(exeext)
+ 
+@@ -3815,6 +3822,7 @@
+ ## several C macro definitions, just like version.o
+ build/version.o:  version.c version.h \
+                   $(REVISION) $(DATESTAMP) $(BASEVER) $(DEVPHASE)
++	-$(cp_crt_cmd)
+ 	$(COMPILER_FOR_BUILD) -c $(BUILD_COMPILERFLAGS) $(BUILD_CPPFLAGS) \
+ 	-DBASEVER=$(BASEVER_s) -DDATESTAMP=$(DATESTAMP_s) \
+ 	-DREVISION=$(REVISION_s) \

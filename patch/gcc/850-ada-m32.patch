@@ -1,0 +1,180 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gnattools/Makefile.in gcc-4.7.2/gnattools/Makefile.in
+--- gcc-4.7.2.orig/gnattools/Makefile.in	2011-10-13 06:41:57.000000000 +0800
++++ gcc-4.7.2/gnattools/Makefile.in	2012-12-10 21:49:08.224824400 +0800
+@@ -58,6 +58,17 @@
+ # Absolute srcdir for gcc (why do we want absolute?  I dunno)
+ fsrcdir := $(shell cd $(srcdir)/../gcc/; ${PWD_COMMAND})
+ 
++# bootstrap for m32
++MAYBE32=
++MAYBE_32=
++stage_current_data:= $(shell if [ -f $(GCC_DIR)/../stage_current ]; then cat $(GCC_DIR)/../stage_current; else echo stage1; fi)
++ifneq ($(stage_current_data),stage1)
++  ifneq ($(findstring -m32,$(BOOT_CFLAGS)),)
++    MAYBE32=32
++    MAYBE_32=_32
++  endif
++endif
++
+ # Useful "subroutines" for the excess includes
+ INCLUDES_FOR_SUBDIR = -I. -I.. -I../.. -I$(fsrcdir)/ada -I$(fsrcdir)/config \
+ 	-I$(fsrcdir)/../include -I$(fsrcdir)
+@@ -66,12 +77,12 @@
+ # Variables for gnattools, native
+ TOOLS_FLAGS_TO_PASS_NATIVE= \
+ 	"CC=../../xgcc -B../../" \
+-	"CFLAGS=$(CFLAGS) $(WARN_CFLAGS)" \
+-	"LDFLAGS=$(LDFLAGS)" \
++	"CFLAGS=$(CFLAGS) $(WARN_CFLAGS) $(BOOT_CFLAGS)" \
++	"LDFLAGS=$(LDFLAGS) $(BOOT_LDFLAGS)" \
+ 	"ADAFLAGS=$(ADAFLAGS)" \
+ 	"ADA_CFLAGS=$(ADA_CFLAGS)" \
+ 	"INCLUDES=$(INCLUDES_FOR_SUBDIR)" \
+-	"ADA_INCLUDES=-I- -I../rts $(ADA_INCLUDES_FOR_SUBDIR)"\
++	"ADA_INCLUDES=-I- -I../rts$(MAYBE_32) $(ADA_INCLUDES_FOR_SUBDIR)"\
+ 	"exeext=$(exeext)" \
+ 	"fsrcdir=$(fsrcdir)" \
+ 	"srcdir=$(fsrcdir)" \
+@@ -83,11 +94,12 @@
+ # Variables for regnattools
+ TOOLS_FLAGS_TO_PASS_RE= \
+ 	"CC=../../xgcc -B../../" \
+-	"CFLAGS=$(CFLAGS)" \
++	"CFLAGS=$(CFLAGS) $(BOOT_CFLAGS)" \
++	"LDFLAGS=$(LDFLAGS) $(BOOT_LDFLAGS)" \
+ 	"ADAFLAGS=$(ADAFLAGS)" \
+ 	"ADA_CFLAGS=$(ADA_CFLAGS)" \
+ 	"INCLUDES=$(INCLUDES_FOR_SUBDIR)" \
+-	"ADA_INCLUDES=-I../rts $(ADA_INCLUDES_FOR_SUBDIR)"\
++	"ADA_INCLUDES=-I../rts$(MAYBE_32) $(ADA_INCLUDES_FOR_SUBDIR)"\
+ 	"exeext=$(exeext)" \
+ 	"fsrcdir=$(fsrcdir)" \
+ 	"srcdir=$(fsrcdir)" \
+@@ -150,6 +162,9 @@
+ 	          rm -f $(GCC_DIR)/ada/tools/$(word 1,$(subst <, ,$(PAIR)));\
+ 	          $(LN_S) $(fsrcdir)/ada/$(word 2,$(subst <, ,$(PAIR))) \
+ 	                $(GCC_DIR)/ada/tools/$(word 1,$(subst <, ,$(PAIR)));)
++	-cp -f $(GCC_DIR)/../crt$(MAYBE32)/crt2.o $(GCC_DIR)/ada/tools/
++	-cp -f $(GCC_DIR)/../crt$(MAYBE32)/crtbegin.o $(GCC_DIR)/ada/tools/
++	-cp -f $(GCC_DIR)/../crt$(MAYBE32)/crtend.o $(GCC_DIR)/ada/tools/
+ 	touch $(GCC_DIR)/stamp-tools
+ 
+ # gnatmake/link tools cannot always be built with gnatmake/link for bootstrap 
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libada/Makefile.in gcc-4.7.2/libada/Makefile.in
+--- gcc-4.7.2.orig/libada/Makefile.in	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/libada/Makefile.in	2012-12-10 21:48:16.184354300 +0800
+@@ -40,7 +40,7 @@
+ # Nonstandard autoconf-set variables.
+ enable_shared = @enable_shared@
+ 
+-LN_S=@LN_S@
++LN_S=cp -Rp
+ AWK=@AWK@
+ 
+ # Variables for the user (or the top level) to override.
+diff --strip-trailing-cr -Nur a/gcc/ada/gcc-interface/Makefile.in b/gcc/ada/gcc-interface/Makefile.in
+--- a/gcc/ada/gcc-interface/Makefile.in	2012-12-11 10:50:14.055880300 +0800
++++ b/gcc/ada/gcc-interface/Makefile.in	2012-12-11 10:52:31.965131800 +0800
+@@ -78,8 +78,8 @@
+ LEX = flex
+ LEXFLAGS =
+ CHMOD = chmod
+-LN = ln
+-LN_S = ln -s
++LN = cp -p
++LN_S = cp -p
+ CP = cp -p
+ MV = mv -f
+ RM = rm -f
+@@ -198,7 +198,7 @@
+ # Link flags used to build gnat tools.  By default we prefer to statically
+ # link with libgcc to avoid a dependency on shared libgcc (which is tricky
+ # to deal with as it may conflict with the libgcc provided by the system).
+-GCC_LINK_FLAGS=-static-libgcc
++GCC_LINK_FLAGS=-static-libgcc $(CFLAGS) $(BOOT_CFLAGS)
+ 
+ # End of variables for you to override.
+ 
+@@ -232,7 +232,7 @@
+ ALL_CFLAGS = $(INTERNAL_CFLAGS) $(T_CFLAGS) $(CFLAGS)
+ 
+ # Likewise.
+-ALL_CPPFLAGS = $(CPPFLAGS)
++ALL_CPPFLAGS = $(CPPFLAGS) $(CFLAGS) $(BOOT_CFLAGS)
+ 
+ # Used with $(COMPILER).
+ ALL_COMPILERFLAGS = $(ALL_CFLAGS)
+@@ -287,6 +287,17 @@
+ 
+ ADA_INCLUDES_FOR_SUBDIR = -I. -I$(fsrcdir)/ada
+ 
++# bootstrap for m32
++ORIG_RTSDIR = rts$(subst /,_,$(MULTISUBDIR))
++stage_current_data:= $(shell if [ -f $(top_builddir)/stage_current ]; then cat $(top_builddir)/stage_current; else cat $(top_builddir)/../stage_current; fi)
++ifneq ($(stage_current_data),stage1)
++  ifneq ($(findstring -m32,$(BOOT_CFLAGS)),)
++    ifeq ($(ORIG_RTSDIR),rts)
++      RTSDIR=rts_32
++    endif
++  endif
++endif
++
+ # Avoid a lot of time thinking about remaking Makefile.in and *.def.
+ .SUFFIXES: .in .def
+ 
+@@ -2287,7 +2299,7 @@
+ 	"GNATLINK=$(GNATLINK)"	\
+ 	"GNATBIND=$(GNATBIND)"
+ 
+-GCC_LINK=$(CC) $(GCC_LINK_FLAGS) $(ADA_INCLUDES)
++GCC_LINK=$(CC) $(GCC_LINK_FLAGS) $(ADA_INCLUDES) $(LDFLAGS)
+ 
+ # Build directory for the tools. Let's copy the target-dependent
+ # sources using the same mechanism as for gnatlib. The other sources are
+@@ -2435,15 +2447,15 @@
+ 	$(RMDIR) $(DESTDIR)$(ADA_INCLUDE_DIR)
+ 	-$(MKDIR) $(DESTDIR)$(ADA_RTL_OBJ_DIR)
+ 	-$(MKDIR) $(DESTDIR)$(ADA_INCLUDE_DIR)
+-	for file in $(RTSDIR)/*.ali; do \
++	for file in $(ORIG_RTSDIR)/*.ali; do \
+ 	    $(INSTALL_DATA_DATE) $$file $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	done
+-	-cd $(RTSDIR); for file in *$(arext);do \
++	-cd $(ORIG_RTSDIR); for file in *$(arext);do \
+ 	    $(INSTALL_DATA) $$file $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	    $(RANLIB_FOR_TARGET) $(DESTDIR)$(ADA_RTL_OBJ_DIR)/$$file; \
+ 	done
+ 	-$(foreach file, $(EXTRA_ADALIB_FILES), \
+-	    $(INSTALL_DATA_DATE) $(RTSDIR)/$(file) $(DESTDIR)$(ADA_RTL_OBJ_DIR) && \
++	    $(INSTALL_DATA_DATE) $(ORIG_RTSDIR)/$(file) $(DESTDIR)$(ADA_RTL_OBJ_DIR) && \
+ 	) true
+ #     Install the shared libraries, if any, using $(INSTALL) instead
+ #     of $(INSTALL_DATA). The latter may force a mode inappropriate
+@@ -2452,21 +2464,21 @@
+ #     Also install the .dSYM directories if they exist (these directories
+ #     contain the debug information for the shared libraries on darwin)
+ 	for file in gnat gnarl; do \
+-	   if [ -f $(RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) ]; then \
+-	      $(INSTALL) $(RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) \
++	   if [ -f $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) ]; then \
++	      $(INSTALL) $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 			 $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	   fi; \
+-	   if [ -f $(RTSDIR)/lib$${file}$(soext) ]; then \
++	   if [ -f $(ORIG_RTSDIR)/lib$${file}$(soext) ]; then \
+ 	      $(LN_S) lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext) \
+ 	      $(DESTDIR)$(ADA_RTL_OBJ_DIR)/lib$${file}$(soext); \
+ 	   fi; \
+-	   if [ -d $(RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM ]; then \
+-	      $(CP) -r $(RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM \
++	   if [ -d $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM ]; then \
++	      $(CP) -r $(ORIG_RTSDIR)/lib$${file}$(hyphen)$(LIBRARY_VERSION)$(soext).dSYM \
+ 	        $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
+ 	   fi; \
+ 	done
+ # This copy must be done preserving the date on the original file.
+-	for file in $(RTSDIR)/*.ad?; do \
++	for file in $(ORIG_RTSDIR)/*.ad?; do \
+ 	    $(INSTALL_DATA_DATE) $$file $(DESTDIR)$(ADA_INCLUDE_DIR); \
+ 	done
+ 	cd $(DESTDIR)$(ADA_INCLUDE_DIR); $(CHMOD) a-wx *.adb

@@ -1,0 +1,12 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgcc/gthr-posix.h gcc-4.7.2/libgcc/gthr-posix.h
+--- gcc-4.7.2.orig/libgcc/gthr-posix.h	2012-02-07 17:19:27.000000000 +0800
++++ gcc-4.7.2/libgcc/gthr-posix.h	2012-12-10 22:16:42.499510400 +0800
+@@ -88,7 +88,7 @@
+ # define __GTHREAD_COND_INIT_FUNCTION __gthread_cond_init_function
+ #endif
+ 
+-#if SUPPORTS_WEAK && GTHREAD_USE_WEAK
++#if SUPPORTS_WEAK && GTHREAD_USE_WEAK && !defined(__MINGW32__)
+ # ifndef __gthrw_pragma
+ #  define __gthrw_pragma(pragma)
+ # endif

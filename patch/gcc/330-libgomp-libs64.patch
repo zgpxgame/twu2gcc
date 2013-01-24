@@ -1,0 +1,32 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgomp/Makefile.in gcc-4.7.2/libgomp/Makefile.in
+--- gcc-4.7.2.orig/libgomp/Makefile.in	2012-09-20 15:23:55.000000000 +0800
++++ gcc-4.7.2/libgomp/Makefile.in	2012-12-10 22:36:00.896214500 +0800
+@@ -323,8 +323,10 @@
+ nodist_libsubinclude_HEADERS = omp.h
+ @USE_FORTRAN_TRUE@nodist_finclude_HEADERS = omp_lib.h omp_lib.f90 omp_lib.mod omp_lib_kinds.mod
+ LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
++MAYBE64 = $(if $(findstring x86_64,$(host_triplet)),$(if $(MULTISUBDIR),,_64),$(if $(findstring /64,$(MULTISUBDIR)),_64))
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ LINK = $(LIBTOOL) --tag CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+-	$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LTLDFLAGS) -o $@
++	$(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LTLDFLAGS) -o $(TARGET_MAYBE64)
+ 
+ 
+ # Automake Documentation:
+@@ -445,7 +447,15 @@
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+ libgomp.la: $(libgomp_la_OBJECTS) $(libgomp_la_DEPENDENCIES) 
+-	$(libgomp_la_LINK) -rpath $(toolexeclibdir) $(libgomp_la_OBJECTS) $(libgomp_la_LIBADD) $(LIBS)
++	$(libgomp_la_LINK) -rpath $(toolexeclibdir) $(libgomp_la_OBJECTS) $(libgomp_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
++	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)

@@ -1,0 +1,33 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libssp/Makefile.in gcc-4.7.2/libssp/Makefile.in
+--- gcc-4.7.2.orig/libssp/Makefile.in	2011-02-13 19:45:53.000000000 +0800
++++ gcc-4.7.2/libssp/Makefile.in	2012-12-10 22:36:00.949277000 +0800
+@@ -90,9 +90,11 @@
+ 	stpcpy-chk.lo strcat-chk.lo strcpy-chk.lo strncat-chk.lo \
+ 	strncpy-chk.lo vsnprintf-chk.lo vsprintf-chk.lo
+ libssp_la_OBJECTS = $(am_libssp_la_OBJECTS)
++MAYBE64 = $(if $(findstring x86_64,$(host_triplet)),$(if $(MULTISUBDIR),,_64),$(if $(findstring /64,$(MULTISUBDIR)),_64))
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libssp_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(libssp_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(libssp_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ am_libssp_nonshared_la_OBJECTS = libssp_nonshared_la-ssp-local.lo
+ libssp_nonshared_la_OBJECTS = $(am_libssp_nonshared_la_OBJECTS)
+ libssp_nonshared_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+@@ -414,7 +416,15 @@
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+ libssp.la: $(libssp_la_OBJECTS) $(libssp_la_DEPENDENCIES) 
+-	$(libssp_la_LINK) -rpath $(toolexeclibdir) $(libssp_la_OBJECTS) $(libssp_la_LIBADD) $(LIBS)
++	$(libssp_la_LINK) -rpath $(toolexeclibdir) $(libssp_la_OBJECTS) $(libssp_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
++	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
+ libssp_nonshared.la: $(libssp_nonshared_la_OBJECTS) $(libssp_nonshared_la_DEPENDENCIES) 
+ 	$(libssp_nonshared_la_LINK) -rpath $(toolexeclibdir) $(libssp_nonshared_la_OBJECTS) $(libssp_nonshared_la_LIBADD) $(LIBS)
+ 

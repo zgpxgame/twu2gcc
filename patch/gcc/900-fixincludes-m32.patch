@@ -1,0 +1,47 @@
+diff --strip-trailing-cr -Nur gcc-4.7.2.orig/fixincludes/Makefile.in gcc-4.7.2/fixincludes/Makefile.in
+--- gcc-4.7.2.orig/fixincludes/Makefile.in	2011-01-04 04:52:22.000000000 +0800
++++ gcc-4.7.2/fixincludes/Makefile.in	2012-12-10 21:58:13.038905100 +0800
+@@ -68,12 +68,23 @@
+ ACLOCAL = aclocal
+ ACLOCAL_AMFLAGS = -I ../gcc -I .. -I ../config
+ 
++# bootstrap for m32
++CFLAGS32=
++LDFLAGS32=
++stage_current_data:= $(shell if [ -f ../stage_current ]; then cat ../stage_current; else echo stage1; fi)
++ifneq ($(stage_current_data),stage1)
++  ifneq ($(findstring -m32,$(BOOT_CFLAGS)),)
++    CFLAGS32=$(BOOT_CFLAGS)
++    LDFLAGS32=$(BOOT_LDFLAGS)
++  endif
++endif
++
+ default : all
+ 
+ # Now figure out from those variables how to compile and link.
+ 
+ .c.o:
+-	$(CC) -c $(CFLAGS) $(WARN_CFLAGS) $(CPPFLAGS) $(FIXINC_CFLAGS) $<
++	$(CC) -c $(CFLAGS) $(WARN_CFLAGS) $(CPPFLAGS) $(CFLAGS32) $(FIXINC_CFLAGS) $<
+ 
+ # The only suffixes we want for implicit rules are .c and .o.
+ .SUFFIXES:
+@@ -107,15 +118,15 @@
+ twoprocess : test-stamp $(AF)
+ 
+ full-stamp : $(ALLOBJ) $(LIBIBERTY)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(FI) $(ALLOBJ) $(LIBIBERTY)
++	$(CC) $(CFLAGS) $(LDFLAGS) $(LDFLAGS32) -o $(FI) $(ALLOBJ) $(LIBIBERTY)
+ 	$(STAMP) $@
+ 
+ test-stamp : $(TESTOBJ) $(LIBIBERTY)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(FI) $(TESTOBJ) $(LIBIBERTY)
++	$(CC) $(CFLAGS) $(LDFLAGS) $(LDFLAGS32) -o $(FI) $(TESTOBJ) $(LIBIBERTY)
+ 	$(STAMP) $@
+ 
+ $(AF): $(FIXOBJ) $(LIBIBERTY)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(FIXOBJ) $(LIBIBERTY)
++	$(CC) $(CFLAGS) $(LDFLAGS) $(LDFLAGS32) -o $@ $(FIXOBJ) $(LIBIBERTY)
+ 
+ $(ALLOBJ)   : $(HDR)
+ fixincl.o   : fixincl.c  $(srcdir)/fixincl.x

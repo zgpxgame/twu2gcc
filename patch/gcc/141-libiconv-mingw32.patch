@@ -1,0 +1,11 @@
+--- gcc-4.7.2.orig/gcc/config/i386/mingw32.h	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/gcc/config/i386/mingw32.h	2012-12-10 23:11:57.119598200 +0800
+@@ -92,7 +92,7 @@
+ #define LIB_SPEC "%{pg:-lgmon} %{" SPEC_PTHREAD1 ":-lpthread} " \
+ 		 "%{" SPEC_PTHREAD2 ": } " \
+ 		 "%{mwindows:-lgdi32 -lcomdlg32} " \
+-                 "-ladvapi32 -lshell32 -luser32 -lkernel32"
++                 "-ladvapi32 -lshell32 -luser32 -lkernel32 -liconv"
+ 
+ /* Weak symbols do not get resolved if using a Windows dll import lib.
+    Make the unwind registration references strong undefs.  */

@@ -1,0 +1,33 @@
+diff --strip-trailing-cr -Nur mpfr-3.1.1.orig/src/Makefile.in mpfr-3.1.1/src/Makefile.in
+--- mpfr-3.1.1.orig/src/Makefile.in	2012-07-03 23:01:44.000000000 +0800
++++ mpfr-3.1.1/src/Makefile.in	2012-12-11 20:57:53.992904800 +0800
+@@ -149,7 +149,7 @@
+ libmpfr_la_OBJECTS = $(am_libmpfr_la_OBJECTS)
+ libmpfr_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(libmpfr_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(libmpfr_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+@@ -426,8 +426,19 @@
+ 	  echo "rm -f \"$${dir}/so_locations\""; \
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
++MAYBE64=
++ifeq ($(findstring -m32,$(CFLAGS)),)
++  MAYBE64=_64
++endif
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libmpfr.la: $(libmpfr_la_OBJECTS) $(libmpfr_la_DEPENDENCIES) $(EXTRA_libmpfr_la_DEPENDENCIES) 
+-	$(libmpfr_la_LINK) -rpath $(libdir) $(libmpfr_la_OBJECTS) $(libmpfr_la_LIBADD) $(LIBS)
++	$(libmpfr_la_LINK) -rpath $(libdir) $(libmpfr_la_OBJECTS) $(libmpfr_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp_mpfr \
++	&& mv -f tmp_mpfr "$(patsubst %.la,%.dll.a,.libs/$@)"
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
