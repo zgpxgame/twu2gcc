@@ -35,10 +35,12 @@ endif
 # gcc build folder
 GCCBUILD32 = $(GCC_BUILD)$(PGOBUILD)_32_$(THREAD)
 GCCBUILD64 = $(GCC_BUILD)$(PGOBUILD)_64_$(THREAD)
+GCCBUILDNOBS = $(GCC_BUILD)_nobs_64_$(THREAD)
 
 # gcc stage folder
 GCCSTAGE32 = $(GCC_STAGE)$(PGOBUILD)_32_$(THREAD)
 GCCSTAGE64 = $(GCC_STAGE)$(PGOBUILD)_64_$(THREAD)
+GCCSTAGENOBS = $(GCC_STAGE)_nobs_64_$(THREAD)
 
 ENABLE_LTO = 0
 # LTO flags
@@ -126,6 +128,7 @@ info:
 	@echo "	expat      	=> expat32 and expat64"
 	@echo "	gdb64      	=> 64 bits GDB"
 	@echo "	gdb        	=> 64 bits GDB"
+	@echo "	gcc_nobs   	=> 64 bits gcc posix thread no bootstrap"
 	@echo "	gcc	   	=> 64 bits gcc posix thread"
 	@echo "	gcc_posix  	=> 64 bits gcc posix thread"
 	@echo "	gcc_win32  	=> 64 bits gcc win32 thread"
@@ -769,6 +772,79 @@ gcc_posix_pgo:
 .PHONY: gcc_win32_pgo
 gcc_win32_pgo:
 	$(MAKE) -f $(MKFILE) gcc_64 THREAD=win32 PGO=1 BITS=64 JOB=$(JOB)
+
+.PHONY: gcc_nobs
+gcc_nobs: gcc_nobs_build
+	$(MAKE) -f $(MKFILE) gcc_nobs_package THREAD=posix PGO=0 BITS=64 JOB=$(JOB)
+
+.PHONY: gcc_nobs_package
+gcc_nobs_package:
+	# strip *.exe, *.dll
+	-find $(GCCSTAGENOBS) -iregex '.*\.\(exe\|dll\)' | xargs -r strip --strip-unneeded
+	-find $(GCCSTAGENOBS) -iname '*.a' | xargs -r strip --strip-debug
+	# we don't need *.la
+	-find $(GCCSTAGENOBS) -iname '*.la' | xargs -r rm -f
+	# move .a files from libexec to x.y.z version lib
+	-mv $(GCCSTAGENOBS)/libexec/gcc/$(TARGET)/*.*.*/*.a $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/
+	# move files from lib to x.y.z version lib
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/lib/* $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/
+	# move files from lib32 to x.y.z/32 version lib
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/lib32/* $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/32/
+	# this should be empty now, remove it
+	# we need to create junction point for this after install
+	-rmdir $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/lib
+	-rmdir $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/lib32
+	# dll should move to bin (move 32 first)
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/32/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/32/adalib/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib/gcc/$(TARGET)/*.*.*/adalib/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib32/gcj-*.*.*-*/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib32/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib/gcj-*.*.*-*/*.dll $(GCCSTAGENOBS)/bin/
+	-mv $(GCCSTAGENOBS)/lib/*.dll $(GCCSTAGENOBS)/bin/
+	-rm -f $(ARCHIVE_STAGE)/gcc_nobs$(PGOBUILD)-$(BITS)-$(THREAD).tar.xz
+	cd $(GCCSTAGENOBS)/ \
+	&& tar Jcvf $(ARCHIVE_STAGE)/gcc_nobs$(PGOBUILD)-$(BITS)-$(THREAD).tar.xz *
+
+.PHONY: gcc_nobs_build
+gcc_nobs_build: $(GCCBUILDNOBS)/Makefile
+	$(MAKE) $(JOBARG) -C $(GCCBUILDNOBS) > $(GCCBUILDNOBS)/make.log 2>&1
+	$(MAKE) $(JOBARG) -C $(GCCBUILDNOBS) install prefix=$(GCCSTAGENOBS) > $(GCCBUILDNOBS)/install.log 2>&1
+$(GCCBUILDNOBS)/Makefile:
+	rm -fR $(GCCBUILDNOBS)
+	mkdir -p $(GCCBUILDNOBS)
+	cd $(GCCBUILDNOBS) \
+	&& $(GCC_SRC)/configure \
+	  --build=$(TARGET) \
+	  --enable-targets=all \
+	  --enable-languages=c,c++ \
+	  --disable-libgomp \
+	  --disable-objc-gc \
+	  --disable-lto \
+	  --enable-graphite \
+	  --enable-threads=$(THREAD) \
+	  --enable-libstdcxx-time=yes \
+	  --enable-cloog-backend=isl \
+	  --enable-checking=release \
+	  --enable-version-specific-runtime-libs \
+	  --enable-fully-dynamic-string \
+	  --disable-ppl-version-check \
+	  --disable-cloog-version-check \
+	  --disable-libstdcxx-debug \
+	  --disable-libstdcxx-pch \
+	  --disable-bootstrap \
+	  --disable-rpath \
+	  --disable-symvers \
+	  --with-gnu-ld \
+	  --with-gnu-as \
+	  --with-libiconv \
+	  --disable-werror \
+	  --disable-nls \
+	  --disable-win32-registry \
+	  --prefix=$(GCC_PREFIX) \
+	  --with-local-prefix=$(GCC_PREFIX) \
+	  --with-pkgversion="$(NAME)-x86_64-$(SUB_VER)"  
 
 .PHONY: gcc_64
 gcc_64: gcc_64_build

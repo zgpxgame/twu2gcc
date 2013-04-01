@@ -45,10 +45,10 @@ make -f `dirname $0`/Makefile \
  RUNTIME_SRC=/crossdev/src/mingw-w64-svn \
  RUNTIME_BUILD=/crossdev/build/runtime \
  RUNTIME_STAGE=/crossdev/stage/runtime \
- GMP_SRC=../../../src/gmp-5.1.0 \
+ GMP_SRC=../../../src/gmp-5.1.1 \
  GMP_BUILD=/crossdev/build/gmp \
  GMP_STAGE=/crossdev/stage/support/gmp \
- MPFR_SRC=../../../src/mpfr-3.1.1 \
+ MPFR_SRC=../../../src/mpfr-3.1.2 \
  MPFR_BUILD=/crossdev/build/mpfr \
  MPFR_STAGE=/crossdev/stage/support/mpfr \
  MPC_SRC=../../../src/mpc-1.0.1 \
@@ -66,7 +66,7 @@ make -f `dirname $0`/Makefile \
  PTHREADS_SRC=/crossdev/src/winpthreads \
  PTHREADS_BUILD=/crossdev/build/winpthreads \
  PTHREADS_STAGE=/crossdev/stage/support/winpthreads \
- GCC_SRC=../../src/gcc-4.7.2 \
+ GCC_SRC=../../src/gcc-4.8.0 \
  GCC_BUILD=/crossdev/build/gcc \
  GCC_STAGE=/crossdev/stage/gcc \
  EXPAT_SRC=../../../src/expat-2.0.1 \
