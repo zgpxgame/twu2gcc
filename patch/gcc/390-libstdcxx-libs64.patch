@@ -1,6 +1,7 @@
---- gcc-4.7.2/libstdc++-v3/src/Makefile.in.old	2012-12-15 10:04:26.731010900 +0800
-+++ gcc-4.7.2/libstdc++-v3/src/Makefile.in	2012-12-15 10:05:10.909553200 +0800
-@@ -447,11 +447,13 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libstdc++-v3/src/Makefile.in gcc-4.8.0/libstdc++-v3/src/Makefile.in
+--- gcc-4.8.0.orig/libstdc++-v3/src/Makefile.in	2012-12-10 17:08:12.000000000 +0800
++++ gcc-4.8.0/libstdc++-v3/src/Makefile.in	2013-03-25 13:00:14.521117700 +0800
+@@ -444,11 +444,13 @@
  # course is problematic at this point.  So, we get the top-level
  # directory to configure libstdc++-v3 to use gcc as the C++
  # compilation driver.
@@ -15,17 +16,12 @@
  
  @ENABLE_SYMVERS_TRUE@CLEANFILES = libstdc++-symbols.ver $(version_dep)
  @ENABLE_SYMVERS_DARWIN_TRUE@@ENABLE_SYMVERS_TRUE@version_arg = -Wl,-exported_symbols_list,libstdc++-symbols.explist
-@@ -546,10 +548,18 @@
- libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) $(libstdc___la_DEPENDENCIES_STATIC) $(libstdc___la_DEPENDENCIES_SHARED)
- 	$(LIBTOOL) --tag CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
- 	  $(CXX) $(OPT_LDFLAGS) $(SECTION_LDFLAGS) -static $(AM_CXXFLAGS) $(LTLDFLAGS) -o $@ \
--	  $(libstdc___la_LDFLAGS) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_STATIC) $(LIBS)
--	cp .libs/libstdc++.a libstdc++_noshared.a
--	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_SHARED) $(LIBS)
--	cp libstdc++_noshared.a .libs/libstdc++.a
-+	  $(libstdc___la_LDFLAGS) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_STATIC) $(LIBS) \
-+	&& cp .libs/libstdc++.a libstdc++_noshared.a \
-+	&& $(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(libstdc___la_LIBADD_SHARED) $(LIBS) \
+@@ -541,7 +543,15 @@
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
+ libstdc++.la: $(libstdc___la_OBJECTS) $(libstdc___la_DEPENDENCIES) 
+-	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS)
++	$(libstdc___la_LINK) -rpath $(toolexeclibdir) $(libstdc___la_OBJECTS) $(libstdc___la_LIBADD) $(LIBS) \
 +	&& rm -f "$@" \
 +	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
 +	&& cp -p "$@" ".libs/$@" \
@@ -33,8 +29,7 @@
 +	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp \
 +	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
 +	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
-+	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)" \
-+	&& cp libstdc++_noshared.a .libs/libstdc++.a
++	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
  
  mostlyclean-compile:
  	-rm -f *.$(OBJEXT)

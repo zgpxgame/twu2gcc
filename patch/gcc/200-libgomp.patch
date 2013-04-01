@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgomp/libgomp.h gcc-4.7.2/libgomp/libgomp.h
---- gcc-4.7.2.orig/libgomp/libgomp.h	2011-11-29 10:19:05.000000000 +0800
-+++ gcc-4.7.2/libgomp/libgomp.h	2012-12-10 22:23:57.171821000 +0800
-@@ -379,9 +379,20 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libgomp/libgomp.h gcc-4.8.0/libgomp/libgomp.h
+--- gcc-4.8.0.orig/libgomp/libgomp.h	2013-01-15 02:18:49.000000000 +0800
++++ gcc-4.8.0/libgomp/libgomp.h	2013-03-23 22:19:17.559723400 +0800
+@@ -378,9 +378,20 @@
  }
  #else
  extern pthread_key_t gomp_tls_key;
@@ -23,10 +23,10 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgomp/libgomp.h gcc-4.7.2/libgomp
  }
  #endif
  
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgomp/team.c gcc-4.7.2/libgomp/team.c
---- gcc-4.7.2.orig/libgomp/team.c	2011-08-03 00:13:29.000000000 +0800
-+++ gcc-4.7.2/libgomp/team.c	2012-12-10 22:23:57.191806400 +0800
-@@ -245,6 +245,9 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libgomp/team.c gcc-4.8.0/libgomp/team.c
+--- gcc-4.8.0.orig/libgomp/team.c	2013-01-15 02:18:49.000000000 +0800
++++ gcc-4.8.0/libgomp/team.c	2013-03-23 22:19:17.573726000 +0800
+@@ -253,6 +253,9 @@
        gomp_end_task ();
        free (task);
      }
@@ -36,7 +36,7 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgomp/team.c gcc-4.7.2/libgomp/te
  }
  
  /* Launch a team.  */
-@@ -521,25 +524,32 @@
+@@ -529,25 +532,32 @@
  
  /* Constructors for this file.  */
  

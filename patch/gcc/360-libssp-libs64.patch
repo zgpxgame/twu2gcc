@@ -1,6 +1,6 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libssp/Makefile.in gcc-4.7.2/libssp/Makefile.in
---- gcc-4.7.2.orig/libssp/Makefile.in	2011-02-13 19:45:53.000000000 +0800
-+++ gcc-4.7.2/libssp/Makefile.in	2012-12-10 22:36:00.949277000 +0800
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libssp/Makefile.in gcc-4.8.0/libssp/Makefile.in
+--- gcc-4.8.0.orig/libssp/Makefile.in	2011-02-13 19:45:53.000000000 +0800
++++ gcc-4.8.0/libssp/Makefile.in	2013-03-23 22:34:28.930126000 +0800
 @@ -90,9 +90,11 @@
  	stpcpy-chk.lo strcat-chk.lo strcpy-chk.lo strncat-chk.lo \
  	strncpy-chk.lo vsnprintf-chk.lo vsprintf-chk.lo

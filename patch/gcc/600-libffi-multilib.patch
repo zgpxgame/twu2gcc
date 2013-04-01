@@ -1,31 +1,20 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/configure gcc-4.7.2/libffi/configure
---- gcc-4.7.2.orig/libffi/configure	2012-09-20 15:23:55.000000000 +0800
-+++ gcc-4.7.2/libffi/configure	2012-12-10 22:27:44.372202400 +0800
-@@ -11350,15 +11350,15 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libffi/configure gcc-4.8.0/libffi/configure
+--- gcc-4.8.0.orig/libffi/configure	2012-12-30 00:25:27.000000000 +0800
++++ gcc-4.8.0/libffi/configure	2013-03-23 22:40:17.894981900 +0800
+@@ -11496,7 +11496,11 @@
  	TARGET=X86_FREEBSD; TARGETDIR=x86
  	;;
-   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw* | i?86-*-os2*)
+   i?86-win32* | i?86-*-cygwin* | i?86-*-mingw* | i?86-*-os2* | i?86-*-interix*)
 -	TARGET=X86_WIN32; TARGETDIR=x86
--	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
--	# We must also check with_cross_host to decide if this is a native
--	# or cross-build and select where to install dlls appropriately.
--	if test -n "$with_cross_host" &&
--	   test x"$with_cross_host" != x"no"; then
--	  AM_LTLDFLAGS='-no-undefined -bindir "$(toolexeclibdir)"';
 +	if test "$with_multisubdir" = "64"; then
 +		TARGET=X86_WIN64; TARGETDIR=x86
- 	else
--	  AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
++	else
 +		TARGET=X86_WIN32; TARGETDIR=x86
 +	fi
-+	if test -n "$with_cross_host" && test x"$with_cross_host" != x"no"; then
-+		AM_LTLDFLAGS='-no-undefined -bindir "$(toolexeclibdir)"';
-+	else
-+		AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
- 	fi
- 	;;
-   i?86-*-darwin*)
-@@ -11434,15 +11434,15 @@
+ 	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
+ 	# We must also check with_cross_host to decide if this is a native
+ 	# or cross-build and select where to install dlls appropriately.
+@@ -11587,15 +11591,15 @@
  	;;
  
    x86_64-*-cygwin* | x86_64-*-mingw*)
@@ -38,13 +27,13 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/configure gcc-4.7.2/libffi/c
 -	  AM_LTLDFLAGS='-no-undefined -bindir "$(toolexeclibdir)"';
 +	if test "$with_multisubdir" = "32"; then
 +		TARGET=X86_WIN32; TARGETDIR=x86
-+	else
+ 	else
+-	  AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
 +		TARGET=X86_WIN64; TARGETDIR=x86
 +	fi
 +	if test -n "$with_cross_host" && test x"$with_cross_host" != x"no"; then
 +		AM_LTLDFLAGS='-no-undefined -bindir "$(toolexeclibdir)"';
- 	else
--	  AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
++	else
 +		AM_LTLDFLAGS='-no-undefined -bindir "$(bindir)"';
  	fi
  	;;

@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgfortran/Makefile.in gcc-4.7.2/libgfortran/Makefile.in
---- gcc-4.7.2.orig/libgfortran/Makefile.in	2012-09-20 15:23:55.000000000 +0800
-+++ gcc-4.7.2/libgfortran/Makefile.in	2012-12-10 22:36:00.873211000 +0800
-@@ -314,9 +314,11 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libgfortran/Makefile.in gcc-4.8.0/libgfortran/Makefile.in
+--- gcc-4.8.0.orig/libgfortran/Makefile.in	2013-03-22 18:16:00.000000000 +0800
++++ gcc-4.8.0/libgfortran/Makefile.in	2013-03-23 22:26:32.425330300 +0800
+@@ -321,9 +321,11 @@
  	--mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
  	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
  CCLD = $(CC)
@@ -14,10 +14,10 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgfortran/Makefile.in gcc-4.7.2/l
  FCCOMPILE = $(FC) $(AM_FCFLAGS) $(FCFLAGS)
  LTFCCOMPILE = $(LIBTOOL) --tag=FC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
  	--mode=compile $(FC) $(AM_FCFLAGS) $(FCFLAGS)
-@@ -1424,7 +1426,15 @@
- libcaf_single.la: $(libcaf_single_la_OBJECTS) $(libcaf_single_la_DEPENDENCIES) 
+@@ -1429,7 +1431,15 @@
+ libcaf_single.la: $(libcaf_single_la_OBJECTS) $(libcaf_single_la_DEPENDENCIES) $(EXTRA_libcaf_single_la_DEPENDENCIES) 
  	$(libcaf_single_la_LINK) -rpath $(cafexeclibdir) $(libcaf_single_la_OBJECTS) $(libcaf_single_la_LIBADD) $(LIBS)
- libgfortran.la: $(libgfortran_la_OBJECTS) $(libgfortran_la_DEPENDENCIES) 
+ libgfortran.la: $(libgfortran_la_OBJECTS) $(libgfortran_la_DEPENDENCIES) $(EXTRA_libgfortran_la_DEPENDENCIES) 
 -	$(libgfortran_la_LINK) -rpath $(toolexeclibdir) $(libgfortran_la_OBJECTS) $(libgfortran_la_LIBADD) $(LIBS)
 +	$(libgfortran_la_LINK) -rpath $(toolexeclibdir) $(libgfortran_la_OBJECTS) $(libgfortran_la_LIBADD) $(LIBS) \
 +	&& rm -f "$@" \
@@ -28,6 +28,6 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libgfortran/Makefile.in gcc-4.7.2/l
 +	&& mv -f tmp "$(patsubst %.la,%.dll.a,.libs/$@)" \
 +	&& mv -f "$(patsubst %.la,%.a,.libs/$(TARGET_MAYBE64))" tmp \
 +	&& mv -f tmp "$(patsubst %.la,%.a,.libs/$@)"
- libgfortranbegin.la: $(libgfortranbegin_la_OBJECTS) $(libgfortranbegin_la_DEPENDENCIES) 
+ libgfortranbegin.la: $(libgfortranbegin_la_OBJECTS) $(libgfortranbegin_la_DEPENDENCIES) $(EXTRA_libgfortranbegin_la_DEPENDENCIES) 
  	$(libgfortranbegin_la_LINK) -rpath $(myexeclibdir) $(libgfortranbegin_la_OBJECTS) $(libgfortranbegin_la_LIBADD) $(LIBS)
  

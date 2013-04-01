@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/config/i386/mingw32.h gcc-4.7.2/gcc/config/i386/mingw32.h
---- gcc-4.7.2.orig/gcc/config/i386/mingw32.h	2012-08-06 22:34:27.000000000 +0800
-+++ gcc-4.7.2/gcc/config/i386/mingw32.h	2012-12-10 22:10:44.443778100 +0800
-@@ -79,7 +79,7 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/gcc/config/i386/mingw32.h gcc-4.8.0/gcc/config/i386/mingw32.h
+--- gcc-4.8.0.orig/gcc/config/i386/mingw32.h	2013-03-25 12:51:30.529590200 +0800
++++ gcc-4.8.0/gcc/config/i386/mingw32.h	2013-03-25 12:50:41.414043500 +0800
+@@ -78,7 +78,7 @@
  #endif
  
  #undef NATIVE_SYSTEM_HEADER_COMPONENT
@@ -10,7 +10,7 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/config/i386/mingw32.h gcc-4.7.2
  
  #undef CPP_SPEC
  #define CPP_SPEC "%{posix:-D_POSIX_SOURCE} %{mthreads:-D_MT} " \
-@@ -144,7 +144,7 @@
+@@ -152,7 +152,7 @@
  
  /* Override startfile prefix defaults.  */
  #ifndef STANDARD_STARTFILE_PREFIX_1
@@ -19,10 +19,10 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/config/i386/mingw32.h gcc-4.7.2
  #endif
  #ifndef STANDARD_STARTFILE_PREFIX_2
  #define STANDARD_STARTFILE_PREFIX_2 ""
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/incpath.c gcc-4.7.2/gcc/incpath.c
---- gcc-4.7.2.orig/gcc/incpath.c	2012-01-27 07:34:58.000000000 +0800
-+++ gcc-4.7.2/gcc/incpath.c	2012-12-10 22:10:44.457787100 +0800
-@@ -175,8 +175,7 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/gcc/incpath.c gcc-4.8.0/gcc/incpath.c
+--- gcc-4.8.0.orig/gcc/incpath.c	2013-02-27 15:28:48.000000000 +0800
++++ gcc-4.8.0/gcc/incpath.c	2013-03-25 12:50:41.426051500 +0800
+@@ -184,8 +184,7 @@
  	      str = concat (sysroot_no_trailing_dir_separator, p->fname, NULL);
  	      free (sysroot_no_trailing_dir_separator);
  	    }
@@ -31,4 +31,4 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/incpath.c gcc-4.7.2/gcc/incpath
 +	  if (relocated && !filename_ncmp (p->fname, cpp_PREFIX, cpp_PREFIX_len))
  	    {
   	      static const char *relocated_prefix;
- 	      /* If this path starts with the configure-time prefix,
+ 	      char *ostr;

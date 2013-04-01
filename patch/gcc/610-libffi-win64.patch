@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/src/x86/ffi.c gcc-4.7.2/libffi/src/x86/ffi.c
---- gcc-4.7.2.orig/libffi/src/x86/ffi.c	2012-02-24 05:02:27.000000000 +0800
-+++ gcc-4.7.2/libffi/src/x86/ffi.c	2012-12-10 22:29:41.155813100 +0800
-@@ -320,7 +320,7 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libffi/src/x86/ffi.c gcc-4.8.0/libffi/src/x86/ffi.c
+--- gcc-4.8.0.orig/libffi/src/x86/ffi.c	2012-12-27 00:28:02.000000000 +0800
++++ gcc-4.8.0/libffi/src/x86/ffi.c	2013-03-23 22:42:59.570246500 +0800
+@@ -324,7 +324,7 @@
  
  #ifdef X86_WIN64
  extern int
@@ -10,16 +10,16 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/src/x86/ffi.c gcc-4.7.2/libf
                 unsigned, unsigned, unsigned *, void (*fn)(void));
  #elif defined(X86_WIN32)
  extern void
-@@ -382,7 +382,7 @@
-               avalue[i] = local;
-             }
-         }
--        ffi_call_win64(ffi_prep_args, &ecif, cif->bytes,
-+        _ffi_call_win64(ffi_prep_args, &ecif, cif->bytes,
-                        cif->flags, ecif.rvalue, fn);
-       }
+@@ -369,7 +369,7 @@
+     {
+ #ifdef X86_WIN64
+     case FFI_WIN64:
+-      ffi_call_win64(ffi_prep_args, &ecif, cif->bytes,
++      _ffi_call_win64(ffi_prep_args, &ecif, cif->bytes,
+                      cif->flags, ecif.rvalue, fn);
        break;
-@@ -455,14 +455,14 @@
+ #elif defined(X86_WIN32)
+@@ -442,14 +442,14 @@
       __attribute__ ((regparm(1)));
  #endif
  #ifdef X86_WIN64
@@ -36,7 +36,7 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libffi/src/x86/ffi.c gcc-4.7.2/libf
    ffi_cif       *cif;
    void         **arg_area;
    void          *result;
-@@ -669,7 +669,7 @@
+@@ -657,7 +657,7 @@
      {
        int mask = FLAG(0)|FLAG(1)|FLAG(2)|FLAG(3);
        FFI_INIT_TRAMPOLINE_WIN64 (&closure->tramp[0],

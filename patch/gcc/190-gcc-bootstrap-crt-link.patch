@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/Makefile.in gcc-4.7.2/gcc/Makefile.in
---- gcc-4.7.2.orig/gcc/Makefile.in	2012-08-06 22:34:27.000000000 +0800
-+++ gcc-4.7.2/gcc/Makefile.in	2012-12-10 22:21:51.535124100 +0800
-@@ -1728,6 +1728,13 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/gcc/Makefile.in gcc-4.8.0/gcc/Makefile.in
+--- gcc-4.8.0.orig/gcc/Makefile.in	2013-03-14 17:13:36.000000000 +0800
++++ gcc-4.8.0/gcc/Makefile.in	2013-03-23 22:15:17.477602800 +0800
+@@ -1740,6 +1740,13 @@
  native: gengtype$(exeext)
  endif
  
@@ -12,10 +12,10 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/gcc/Makefile.in gcc-4.7.2/gcc/Makef
 +  cp_crt_cmd:=cp -f $(toplevel_builddir)/crt32/crt2.o $(toplevel_builddir)/prev-gcc/32/crt2.o; cp -f $(toplevel_builddir)/crt32/crtbegin.o $(toplevel_builddir)/prev-gcc/32/crtbegin.o; cp -f $(toplevel_builddir)/crt32/crtend.o $(toplevel_builddir)/prev-gcc/32/crtend.o; cp -f $(toplevel_builddir)/crt/crt2.o $(toplevel_builddir)/prev-gcc/crt2.o; cp -f $(toplevel_builddir)/crt/crtbegin.o $(toplevel_builddir)/prev-gcc/crtbegin.o; cp -f $(toplevel_builddir)/crt/crtend.o $(toplevel_builddir)/prev-gcc/crtend.o
 +endif
 +
- # Define the names for selecting languages in LANGUAGES.
- c: cc1$(exeext)
- 
-@@ -3815,6 +3822,7 @@
+ # On the target machine, finish building a cross compiler.
+ # This does the things that can't be done on the host machine.
+ rest.cross: specs
+@@ -3821,6 +3828,7 @@
  ## several C macro definitions, just like version.o
  build/version.o:  version.c version.h \
                    $(REVISION) $(DATESTAMP) $(BASEVER) $(DEVPHASE)

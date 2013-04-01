@@ -1,6 +1,7 @@
---- gcc-4.7.2/gcc/ada/gcc-interface/Makefile.in.orig	2012-12-12 13:45:38.252118800 +0800
-+++ gcc-4.7.2/gcc/ada/gcc-interface/Makefile.in	2012-12-12 13:50:24.078467100 +0800
-@@ -2463,16 +2463,16 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/gcc/ada/gcc-interface/Makefile.in gcc-4.8.0/gcc/ada/gcc-interface/Makefile.in
+--- gcc-4.8.0.orig/gcc/ada/gcc-interface/Makefile.in	2013-03-23 22:55:18.359977300 +0800
++++ gcc-4.8.0/gcc/ada/gcc-interface/Makefile.in	2013-03-23 22:55:24.889813900 +0800
+@@ -2573,16 +2573,16 @@
  #     Also install the .dSYM directories if they exist (these directories
  #     contain the debug information for the shared libraries on darwin)
  	for file in gnat gnarl; do \
@@ -22,7 +23,7 @@
  	        $(DESTDIR)$(ADA_RTL_OBJ_DIR); \
  	   fi; \
  	done
-@@ -2569,6 +2569,12 @@
+@@ -2670,6 +2670,12 @@
  # Example: cd $(RTSDIR); ar rc libfoo.a $(LONG_LIST_OF_OBJS)
  # is guaranteed to overflow the buffer.
  
@@ -33,9 +34,9 @@
 +
 +
  gnatlib: ../stamp-gnatlib1-$(RTSDIR) ../stamp-gnatlib2-$(RTSDIR) $(RTSDIR)/s-oscons.ads
+ # C files
  	$(MAKE) -C $(RTSDIR) \
- 		CC="`echo \"$(GCC_FOR_TARGET)\" \
-@@ -2616,20 +2622,20 @@
+@@ -2718,20 +2724,20 @@
  	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
                  | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared $(GNATLIBCFLAGS) \
  		$(PICFLAG_FOR_TARGET) \
@@ -62,7 +63,7 @@
  		libgnarl$(soext)
  
  gnatlib-shared-dual:
-@@ -2687,16 +2693,16 @@
+@@ -2789,16 +2795,16 @@
  	cd $(RTSDIR); `echo "$(GCC_FOR_TARGET)" \
                  | sed -e 's,\./xgcc,../../xgcc,' -e 's,-B\./,-B../../,'` -shared -shared-libgcc \
  		$(PICFLAG_FOR_TARGET) \

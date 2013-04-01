@@ -1,7 +1,7 @@
-diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libquadmath/Makefile.in gcc-4.7.2/libquadmath/Makefile.in
---- gcc-4.7.2.orig/libquadmath/Makefile.in	2011-09-21 22:36:03.000000000 +0800
-+++ gcc-4.7.2/libquadmath/Makefile.in	2012-12-10 22:36:00.934241600 +0800
-@@ -139,9 +139,11 @@
+diff --strip-trailing-cr -Nur gcc-4.8.0.orig/libquadmath/Makefile.in gcc-4.8.0/libquadmath/Makefile.in
+--- gcc-4.8.0.orig/libquadmath/Makefile.in	2013-03-22 18:16:00.000000000 +0800
++++ gcc-4.8.0/libquadmath/Makefile.in	2013-03-23 22:32:54.526334200 +0800
+@@ -144,9 +144,11 @@
  @BUILD_LIBQUADMATH_TRUE@	strtod/mpn2flt128.lo \
  @BUILD_LIBQUADMATH_TRUE@	strtod/tens_in_limb.lo
  libquadmath_la_OBJECTS = $(am_libquadmath_la_OBJECTS)
@@ -14,7 +14,7 @@ diff --strip-trailing-cr -Nur gcc-4.7.2.orig/libquadmath/Makefile.in gcc-4.7.2/l
  @BUILD_LIBQUADMATH_TRUE@am_libquadmath_la_rpath = -rpath \
  @BUILD_LIBQUADMATH_TRUE@	$(toolexeclibdir)
  DEFAULT_INCLUDES = -I.@am__isrc@
-@@ -637,7 +639,15 @@
+@@ -656,7 +658,15 @@
  strtod/tens_in_limb.lo: strtod/$(am__dirstamp) \
  	strtod/$(DEPDIR)/$(am__dirstamp)
  libquadmath.la: $(libquadmath_la_OBJECTS) $(libquadmath_la_DEPENDENCIES) 
