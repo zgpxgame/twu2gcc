@@ -1,0 +1,12 @@
+--- mingw-w64-svn-trunk/mingw-w64-headers/include/stralign.h	2013-03-24 15:57:46.711959600 +0800
++++ mingw-w64-svn/mingw-w64-headers/include/stralign.h	2013-03-25 14:37:27.309947000 +0800
+@@ -38,6 +38,9 @@
+ 
+ #else /* not _X86_ : */
+ 
++#ifdef WSTR_ALIGNED
++#undef WSTR_ALIGNED
++#endif
+ #define WSTR_ALIGNED(s) (((DWORD_PTR)(s) & (sizeof(WCHAR)-1))==0)
+ 
+   /* TODO: This method seems to be not present for amd64.  */
