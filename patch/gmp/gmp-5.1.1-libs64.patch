@@ -1,0 +1,47 @@
+--- gmp-5.1.1/Makefile.in.orig	2013-02-11 23:29:20.000000000 +0800
++++ gmp-5.1.1/Makefile.in	2013-03-25 16:03:57.598548900 +0800
+@@ -191,12 +191,12 @@
+ libgmp_la_OBJECTS = $(am_libgmp_la_OBJECTS)
+ libgmp_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(libgmp_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(libgmp_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ am_libgmpxx_la_OBJECTS = dummy.lo
+ libgmpxx_la_OBJECTS = $(am_libgmpxx_la_OBJECTS)
+ libgmpxx_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+-	$(CXXFLAGS) $(libgmpxx_la_LDFLAGS) $(LDFLAGS) -o $@
++	$(CXXFLAGS) $(libgmpxx_la_LDFLAGS) $(LDFLAGS) -o $(TARGET_MAYBE64)
+ @WANT_CXX_TRUE@am_libgmpxx_la_rpath = -rpath $(libdir)
+ DEFAULT_INCLUDES = -I.@am__isrc@
+ depcomp =
+@@ -740,10 +740,27 @@
+ 	  echo "rm -f \"$${dir}/so_locations\""; \
+ 	  rm -f "$${dir}/so_locations"; \
+ 	done
++MAYBE64=
++ifeq ($(findstring -m32,$(CFLAGS)),)
++  MAYBE64=_64
++endif
++TARGET_MAYBE64 = $(patsubst %.la,%$(MAYBE64).la,$@)
+ libgmp.la: $(libgmp_la_OBJECTS) $(libgmp_la_DEPENDENCIES) $(EXTRA_libgmp_la_DEPENDENCIES) 
+-	$(libgmp_la_LINK) -rpath $(libdir) $(libgmp_la_OBJECTS) $(libgmp_la_LIBADD) $(LIBS)
++	$(libgmp_la_LINK) -rpath $(libdir) $(libgmp_la_OBJECTS) $(libgmp_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp_gmp \
++	&& mv -f tmp_gmp "$(patsubst %.la,%.dll.a,.libs/$@)"
+ libgmpxx.la: $(libgmpxx_la_OBJECTS) $(libgmpxx_la_DEPENDENCIES) $(EXTRA_libgmpxx_la_DEPENDENCIES) 
+-	$(libgmpxx_la_LINK) $(am_libgmpxx_la_rpath) $(libgmpxx_la_OBJECTS) $(libgmpxx_la_LIBADD) $(LIBS)
++	$(libgmpxx_la_LINK) $(am_libgmpxx_la_rpath) $(libgmpxx_la_OBJECTS) $(libgmpxx_la_LIBADD) $(LIBS) \
++	&& rm -f "$@" \
++	&& cat ".libs/$(TARGET_MAYBE64)" | sed 's/\(.*\)_64\(\.dll\)\?\.a/\1\2\.a/' >"$@" \
++	&& cp -p "$@" ".libs/$@" \
++	&& cp -p "$@" ".libs/$@i" \
++	&& mv -f "$(patsubst %.la,%.dll.a,.libs/$(TARGET_MAYBE64))" tmp_gmpxx \
++	&& mv -f tmp_gmpxx "$(patsubst %.la,%.dll.a,.libs/$@)"
+ 
+ mostlyclean-compile:
+ 	-rm -f *.$(OBJEXT)
